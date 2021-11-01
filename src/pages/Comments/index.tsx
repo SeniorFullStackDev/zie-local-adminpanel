@@ -225,6 +225,7 @@ const AllComments = ({ match }: any) => {
 					console.log('Notification Clicked!');
 				},
 			});
+			form.resetFields();
 			loadTable();
 		}).catch((err:any)=>{
 			console.log('createComment ===>', err);
