@@ -1,0 +1,9 @@
+**/build
+**/node_modules
+**/public
+**/scripts
+**/config/*.js
+**/tsconfig.json
+**/packagejson.json
+**/.eslintrc.json
+**/.eslintcache

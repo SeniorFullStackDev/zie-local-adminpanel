@@ -1,0 +1,38 @@
+.content {
+    border-bottom: solid #CCC 1px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+}
+
+.imagePreview {
+    display: flex;
+    position: relative;
+    width: 200px;
+    height: 200px;
+    .actionBar {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: transparent;
+        transition: 0.3s;
+        &:hover {
+            background-color: #0006;
+            span {
+                display: flex;
+            }
+        }
+        span {
+            display: none;
+            cursor: pointer;
+            width: 25px;
+            height: 25px;
+            background-color: #2f2f2f;
+            border-radius: 25px;
+            align-items: center;
+            justify-content: center;
+        }
+    }
+}
