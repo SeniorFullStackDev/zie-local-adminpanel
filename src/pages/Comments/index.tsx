@@ -348,7 +348,7 @@ const AllComments = ({ match }: any) => {
 					</Form.Item>
 
 					<Form.Item label="Comments" name="comment_content" required>
-						<Input.TextArea showCount style = {{minHeight: 100}} />
+						<Input.TextArea showCount style = {{minHeight: 100,}}  rows={8}/>
 					</Form.Item>
 
 					<Form.Item label="Rating" name="ratings" required>
