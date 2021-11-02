@@ -21,3 +21,13 @@ code {
 .upload-list-inline [class*='-upload-list-rtl'] .ant-upload-list-item {
   float: right;
 }
+
+.ant-radio-button-wrapper-checked {
+  background-color: black !important;
+  border-color: black !important;
+}
+
+.ant-radio-button-checked {
+  background-color: black;
+  border-color: black;
+}

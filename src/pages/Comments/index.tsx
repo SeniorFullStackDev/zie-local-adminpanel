@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Table, Tag, Space, Button, Modal, Form, Input, Card, Select, notification } from 'antd';
+import { Table, Tag, Space, Button, Modal, Form, Input, Card, Select, notification, Radio } from 'antd';
 import { InfoCircleOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import { getAll, deleteComment, createComment } from 'api/api-comments';
 import { getAllfakeUsers } from 'api/api-user';
@@ -352,7 +352,15 @@ const AllComments = ({ match }: any) => {
 					</Form.Item>
 
 					<Form.Item label="Rating" name="ratings" required>
-						<Input type="number" max = {5} min = {0} step = {1} />
+						<Radio.Group style={{justifyContent: 'space-between', flexDirection:'row', flex:'1'}} buttonStyle="solid">
+							<Space size="small">
+								<Radio.Button value="1">1</Radio.Button>
+								<Radio.Button value="2">2</Radio.Button>
+								<Radio.Button value="3">3</Radio.Button>
+								<Radio.Button value="4">4</Radio.Button>
+								<Radio.Button value="5">5</Radio.Button>
+							</Space>
+						</Radio.Group>
 					</Form.Item>
 				</Form>
 			</Modal>
