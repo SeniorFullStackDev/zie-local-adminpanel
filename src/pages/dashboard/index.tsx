@@ -23,6 +23,7 @@ import AllRedirections from 'pages/Redirections';
 import AllRegions from 'pages/Regions';
 import UserForm from 'pages/Users/UserForm';
 import CreateUserForm from 'pages/Users/CreateUserForm';
+import AllSeos from 'pages/Seo';
 
 const { SubMenu } = Menu;
 
@@ -254,6 +255,12 @@ const Dashboard = ({ match, location }: any) => {
 							exact
 							path={`${match.path}${PATHS.REGIONS}`}
 							component={AllRegions}
+						/>
+
+						<Route
+							exact
+							path={`${match.path}${PATHS.SEO}`}
+							component={AllSeos}
 						/>
 
 					</Content>
