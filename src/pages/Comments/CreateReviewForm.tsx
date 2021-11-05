@@ -197,7 +197,7 @@ const Index = ({isModalVisible, onClose }:Props) => {
 							{
 								allFakeUsers.map((ele:any, index:number)=>(
 									<Select.Option key={ele.id} value={ele.id}>
-										{ele.email}
+										{`${ele.email} (${ele.name})`}
 									</Select.Option>
 								))
 							}
