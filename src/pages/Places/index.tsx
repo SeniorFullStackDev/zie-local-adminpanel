@@ -7,12 +7,36 @@ import history from 'modules/history';
 import { PlaceType } from 'modules/types';
  
 
+const confirm = Modal.confirm;
 const ActionCell = ({ item, onChange }: any) => {
 	const [isRequesting, setIsRequesting] = useState(false);
 	const onClickBtn = () => {
-		setIsRequesting(true);
-		deletePlace(item.id);
-		onChange();
+		confirm({
+            title: 'Are you sure you want to delete this place?',
+            okText: 'Delete',
+            okType: 'default',
+            cancelText: 'No, do not delete',
+            okButtonProps:{
+                style:{
+                    backgroundColor:'#fff'
+                }
+            },
+            cancelButtonProps: {
+                style:{
+                    backgroundColor:'#0ab068', color:'#fff'
+                }
+            },
+            onOk() {
+                console.log('OK');
+                setIsRequesting(true);
+				deletePlace(item.id);
+				onChange();
+            },
+            onCancel() {
+              console.log('Cancel');
+            },
+          });
+		
 	};
 	return (
 		<Space size="middle">
