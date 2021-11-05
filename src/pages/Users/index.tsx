@@ -7,7 +7,7 @@ import MailOutlined from '@ant-design/icons/MailOutlined';
 
 import history from 'modules/history';
 import { PlaceType } from 'modules/types';
-import classes from './style.module.scss';
+ 
 
 const ActionCell = ({ item, onChange }: any) => {
 	const [userInfo, setUserInfo] = useState(item);
@@ -142,7 +142,7 @@ const AllUsers = ({ match }: any) => {
 
     return (
 		<>
-        <div className={classes.tableHeader}>
+        <div className='table-header'>
 			{/* <Form form={form} style={{ marginTop: 20 }} onFinish={onFinishSearch}> */}
 			{/* </Form> */}
 			<Input.Search style={{ width: '40%' }} onPressEnter = {onFinishSearch}/>

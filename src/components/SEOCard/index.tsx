@@ -36,8 +36,9 @@ const index = ({ placeId, data, id, toSave }:Props) => {
 
 
     useEffect(()=>{
+        console.log('seoDetail ===>', seoDetail);
         if(seoDetail){
-            const schema_json = JSON.parse(seoDetail.schema_json);
+            const schema_json = seoDetail.schema_json;
             console.log('schema_json ===>',schema_json);
             form.setFieldsValue({...schema_json, ...schema_json.robots });
         }
@@ -46,9 +47,14 @@ const index = ({ placeId, data, id, toSave }:Props) => {
     const [toggle, toggleCard] = useState(true);
 
     const onSave = (values:any) =>{
-
-        const schema_json = JSON.parse(seoDetail.schema_json);
-        const place_id = seoDetail.place_id;
+        let schema_json = {
+            robots: {}
+        };
+        try {
+            schema_json = seoDetail.schema_json;
+        }catch(err){
+            console.log(err);
+        }
         const data = {
             schema_json: {
                 ...schema_json,
@@ -63,7 +69,7 @@ const index = ({ placeId, data, id, toSave }:Props) => {
             }
         };
         setRequesting(true);
-        saveSEOData(place_id, data).then((res)=>{
+        saveSEOData(placeId, data).then((res)=>{
             setEditing(false);
             setRequesting(false);
         }).catch(err=>console.log);
@@ -95,7 +101,6 @@ const index = ({ placeId, data, id, toSave }:Props) => {
                         Canonical URL:
                         <Form.Item
                             name="canonical"
-                            rules={[{ required: true, message: 'required!' }]}
                         >
                             <Input />
                         </Form.Item>
@@ -105,7 +110,7 @@ const index = ({ placeId, data, id, toSave }:Props) => {
                             name="index"
                             rules={[{ required: true, message: 'required!' }]}
                         >
-                             <Select defaultValue="index" style={{ width: 120 }} onChange = {()=>setEditing(true)}>
+                             <Select style={{ width: 120 }} onChange = {()=>setEditing(true)}>
                                 <Option value="index">Yes</Option>
                                 <Option value="noindex">No</Option>
                             </Select>
@@ -116,7 +121,7 @@ const index = ({ placeId, data, id, toSave }:Props) => {
                             name="follow"
                             rules={[{ required: true, message: 'required!' }]}
                         >
-                            <Select defaultValue="follow" style={{ width: 120 }} onChange = {()=>setEditing(true)}>
+                            <Select style={{ width: 120 }} onChange = {()=>setEditing(true)}>
                                 <Option value="follow">Yes</Option>
                                 <Option value="nofollow">No</Option>
                             </Select>

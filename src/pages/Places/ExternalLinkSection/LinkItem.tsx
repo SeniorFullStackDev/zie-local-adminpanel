@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { Form, Input, Button, Checkbox, Row, Col } from 'antd';
 import { DeleteFilled, EditFilled } from '@ant-design/icons';
-import classes from './style.module.scss';
+//  
 
 interface Props {
     data:any;
@@ -80,7 +80,7 @@ const Index = ({data, onDelete, onSave, toSave}:Props) => {
     };
 
     return (
-        <div className = {classes.content}>
+        <div className = 'content'>
            <Form
                 // {...layout}
                 form={form}

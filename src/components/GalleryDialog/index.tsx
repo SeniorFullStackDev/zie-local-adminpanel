@@ -3,7 +3,7 @@ import { Modal, Button, Row, Col, Tabs, Input, Image, Form, Upload } from 'antd'
 import { CheckSquareFilled, MinusSquareFilled, InboxOutlined, FileImageOutlined} from '@ant-design/icons';
 import { getAll, deletePhoto, updatePhotoDetail } from 'api/api-photo';
 import config from 'api/config';
-import classes from './style.module.scss';
+ 
 import { UploadForm } from './UploadForm';
 import useGallery from 'modules/gallery/gallery.hook';
 
@@ -119,7 +119,7 @@ const GalleryDialog = ({open, onSelect, onClose, selectMode = 'single' }:Props) 
                 onOk={()=>{onSelect(selectedPhoto);}}
                 onCancel = {onClose}
                 >
-                    <div className = {classes.galleryWrapper}>
+                    <div style={{minHeight:'70vh', position:'relative'}}>
                         <Tabs onChange={onChangeTab} type="card" activeKey = {activeTab}>
                             <TabPane tab="Media Libray" key="1">
                                 <Row>
@@ -127,20 +127,20 @@ const GalleryDialog = ({open, onSelect, onClose, selectMode = 'single' }:Props) 
                                         <div>
                                             <Input.Search style={{ width: '400px' }} onPressEnter = {onFinishSearch}/>
                                         </div>
-                                        <div className = {classes.imageWrapper} onScroll ={handleScroll}>
+                                        <div className = "gallery-image-wrapper" onScroll ={handleScroll}>
                                             <Row gutter = {[4, 4]}>
                                                 {photos.map((ele:any)=>(
                                                     <Col md = {4} sm = {6} lg = {3}>
-                                                        <div className = {`${classes.photoItem} ${(isSelected(ele))?classes.active:''}` }>
+                                                        <div className = {`photo-item ${(isSelected(ele))?'active':''}` }>
                                                             <img src = {ele.sizes['thumbnail']} onClick = {()=>{
                                                                 addPhoto(ele);
                                                                 form.setFieldsValue(ele);
                                                             }}/>
-                                                            <div className = {classes.checkMark}>
-                                                                <div className = {classes.checked}>
+                                                            <div className = "checkMark">
+                                                                <div className = "checked">
                                                                     <CheckSquareFilled/>
                                                                 </div>
-                                                                <div className = {classes.remove}>
+                                                                <div className = 'remove'>
                                                                     <MinusSquareFilled onClick = {()=>{removePhoto(ele);}}/>
                                                                 </div>
                                                             </div>
@@ -154,10 +154,10 @@ const GalleryDialog = ({open, onSelect, onClose, selectMode = 'single' }:Props) 
                                     {selectMode !== 'group' && <Col span = {4}>
                                         <div style = {{padding:8}}>
                                             <div>ATTACHMENT DETAIL</div>
-                                            <div className = {classes.previewImageBox}>
+                                            <div className = 'content'>
                                                 {selectedPhoto[0] && <Image src = {selectedPhoto[0].url}/>}
                                             </div>
-                                            <div className = {classes.previewImageInfo}>
+                                            <div>
                                                 <Form form = {form} labelCol = {{span:24}} wrapperCol = {{span:24}} onFinish = {onFinishPhotoForm}>
                                                     <Form.Item label="Alt:" name = "alt">
                                                         <Input />

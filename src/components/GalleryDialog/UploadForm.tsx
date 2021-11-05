@@ -3,7 +3,7 @@ import { Modal, Button, Row, Col, Tabs, Input, Image, Form, Upload } from 'antd'
 import { CheckSquareFilled, MinusSquareFilled, InboxOutlined, FileImageOutlined} from '@ant-design/icons';
 import { createPhoto } from 'api/api-photo';
 import config from 'api/config';
-import classes from './style.module.scss';
+ 
 
 interface Props {
     onFinishedUpload:(ele:any[])=>void;
@@ -86,7 +86,7 @@ export const UploadForm = ({ onFinishedUpload }:Props) => {
     return (
         <>
             <Row>
-                <div className={classes.uploadBox}>
+                <div style = {{width:'100%', height:'100%'}}>
                     <Upload.Dragger {...props}>
                         <div>
                             <p className="ant-upload-drag-icon">

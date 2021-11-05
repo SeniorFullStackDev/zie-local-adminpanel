@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { Form, Input, Button, Checkbox, Card, notification } from 'antd';
 import { useLocation } from 'react-router-dom';
 import useAuth from 'modules/auth/auth.hook';
-import classes from './style.module.scss';
 import history from 'modules/history';
 import { PATHS } from 'constants/routes';
 import { resetpassword } from 'api/api-auth';
@@ -65,7 +64,7 @@ const LoginPage = () => {
 
 	if(visibleResetPasswordForm){
 		return (
-			<div className={classes.container}>
+			<div className='container'>
 				<Form onFinish = {onFinishResetForm} onFinishFailed={onFinishFailed} >
 					<Card title = "Reset password" style={{ width: 500 }}>
 						<Form.Item
@@ -92,7 +91,7 @@ const LoginPage = () => {
 	}
 
 	return (
-		<div className={classes.container}>
+		<div className='container'>
 			{!profile.require_2fa_step &&
 			<Form initialValues={{ remember: true }} onFinish={onFinish} onFinishFailed={onFinishFailed}>
 				<Card title="Admin Login" style={{ width: 500 }}>

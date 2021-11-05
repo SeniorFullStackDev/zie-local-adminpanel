@@ -224,6 +224,10 @@ const Index = ({ match }: any) => {
             <Card title = "Regions" actions = {[<div style = {{display:'flex'}}><Button type="primary" style = {{marginRight:24, marginLeft:'auto'}} onClick = {()=>{
                 setModalVisible(true);
             }}>Add more</Button></div>]}>
+
+              <div className ="table-header">
+                <Input.Search style={{ width: '40%' }} onPressEnter = {onFinishSearch}/>
+              </div>
                 <Form form={form} component={false}>
                     <Table 
                         components={{

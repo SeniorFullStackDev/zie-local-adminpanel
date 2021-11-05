@@ -5,6 +5,7 @@ import CityForm from './CityForm';
 import CountryForm from './CountryForm';
 import ChildPlaceForm from './ChildPlaceForm';
 import HomePageForm from './HomePageForm';
+import usePlace from 'modules/place/place.hook';
 
 
 const PlaceForm = ({match, placeType}:any) => {
@@ -16,6 +17,8 @@ const PlaceForm = ({match, placeType}:any) => {
     const [allPlaces, setAllPlaces] = useState<any>([]);
     const [continents, setAllcontinents] = useState<any>([]);
 
+    const { setPlace } = usePlace();
+
 
     useEffect(()=>{
         if(parseInt(placeId) > 0){
@@ -23,13 +26,18 @@ const PlaceForm = ({match, placeType}:any) => {
                 setAllPlaces(data.body);
                 getPlaceDetail(match.params.placeId).then(data=>{
                     setPlaceDetail(data.body);
+                    setPlace(data.body);
                 });
             });
-
             getAllContinents().then(res=>{
                 setAllcontinents(res.body);
             }).catch(error=>console.log);
         }
+
+        return ()=>{
+            setPlace({});
+        };
+        
     }, [placeId]);
 
 
@@ -37,7 +45,7 @@ const PlaceForm = ({match, placeType}:any) => {
          return <CityForm  placeDetail = {placeDetail} allPlaces = {allPlaces} />;
      }
      if(placeDetail.place_type == 'country'){
-        return <CountryForm  placeDetail = {placeDetail} continetns = {continents} />;
+        return <CountryForm  placeDetail = {placeDetail} continents = {continents} />;
      }
 
      if(placeDetail.place_type == 'homepage'){

@@ -5,7 +5,7 @@ import { getAll, deletePlace } from 'api/api-place';
 import DeleteOutlined from '@ant-design/icons/DeleteOutlined';
 import history from 'modules/history';
 import { PlaceType } from 'modules/types';
-import classes from './style.module.scss';
+ 
 
 const ActionCell = ({ item, onChange }: any) => {
 	const [isRequesting, setIsRequesting] = useState(false);
@@ -71,7 +71,7 @@ const AllPlaces = ({ match }: any) => {
 	};
 
 	const onCreateNewCountry = () => {
-		history.push(`${match.path}/0`);
+		history.push(`${match.path}/country/new`);
 	};
 
 	const onCreateNewCity = () => {
@@ -87,7 +87,7 @@ const AllPlaces = ({ match }: any) => {
 
     return (
 		<>
-        <div className={classes.tableHeader}>
+        <div className="table-header">
 			{/* <Form form={form} style={{ marginTop: 20 }} onFinish={onFinishSearch}> */}
 			{/* </Form> */}
 			<Input.Search style={{ width: '40%' }} onPressEnter = {onFinishSearch}/>

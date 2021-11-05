@@ -6,6 +6,7 @@ import { CommentOutlined, EnvironmentOutlined, UserOutlined, LaptopOutlined, Log
 import AllPlaces from 'pages/Places';
 import PlaceForm from 'pages/Places/PlaceForm';
 import NewCityForm from 'pages/Places/PlaceForm/NewCityForm';
+import NewCountryFrom from 'pages/Places/PlaceForm/NewCountryForm';
 
 import AllUsers from 'pages/Users';
 import AllAdmins from 'pages/Admins';
@@ -15,7 +16,6 @@ import AllComments from 'pages/Comments';
 import history from 'modules/history';
 import useAuth from 'modules/auth/auth.hook';
 
-import classes from './style.module.scss';
 import CommentForm from './CommentForm';
 import AdminForm from 'pages/Admins/AdminForm';
 import AllPhotos from 'pages/Photos';
@@ -63,7 +63,7 @@ const Dashboard = ({ match, location }: any) => {
 
 	return (
 		<Layout>
-			<Header className={classes.header}>
+			<Header className='header'>
 				<div className="logo">
 					<a href="https://www.zielonamapa.pl">
 						<img src="https://www.zielonamapa.pl/asset/icon/graphics-logo-full-white.svg" width = "176" />
@@ -71,8 +71,8 @@ const Dashboard = ({ match, location }: any) => {
 				</div>
 				<Button ghost icon = {<img src="/images/icons-logout.svg" />} style={{border:'none'}} onClick = {onClickLogoutBtn}><span style={{marginLeft:8}}>Log out</span></Button>
 			</Header>
-			<Layout className={classes.layout}>
-				<Sider className={classes.sider}>
+			<Layout>
+				<Sider className='sider'>
 					<Menu theme="dark" mode="inline" defaultSelectedKeys={[openMenuItem]}>
 						<Menu.Item
 							key="0"
@@ -172,7 +172,7 @@ const Dashboard = ({ match, location }: any) => {
 							<Breadcrumb.Item key={i}>{e.replace('/', '')}</Breadcrumb.Item>
 						))}
 					</Breadcrumb>
-					<Content className={classes.siteLayoutBackground}>
+					<Content style = {{padding: 24, margin: 0, minHeight:500}}>
 						<Route
 							exact
 							path={`${match.path}${PATHS.PLACES}`}
@@ -188,6 +188,12 @@ const Dashboard = ({ match, location }: any) => {
 							exact
 							path={`${match.path}${PATHS.PLACES}/city/new`}
 							component={NewCityForm}
+						/>
+
+						<Route
+							exact
+							path={`${match.path}${PATHS.PLACES}/country/new`}
+							component={NewCountryFrom}
 						/>
 
 						<Route
@@ -257,6 +263,7 @@ const Dashboard = ({ match, location }: any) => {
 							component={AllRegions}
 						/>
 
+						
 						<Route
 							exact
 							path={`${match.path}${PATHS.SEO}`}

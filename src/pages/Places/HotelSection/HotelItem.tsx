@@ -3,7 +3,7 @@ import { Form, Input, Button, Checkbox, Spin } from 'antd';
 import { DeleteFilled, EditFilled } from '@ant-design/icons';
 import { scrapeHotelDetailFromBookingCom } from 'api/api-place';
 
-import classes from './style.module.scss';
+ 
 import { isValidURL } from 'utils';
 
 interface Props {
@@ -126,7 +126,7 @@ const Index = ({data, onChooseImage, onDeleteImage, onDelete, onSave, toSave}:Pr
                 return (
                     <>
                         <img src = {hotelDetail.photo.sizes.thumbnail} />
-                        <div className = {classes.actionBar}>
+                        <div className = 'actionBar'>
                             <span>
                                 <EditFilled onClick = {()=>onChooseImage(form.getFieldsValue())} style = {{color:'#fff'}} />
                             </span>
@@ -146,7 +146,7 @@ const Index = ({data, onChooseImage, onDeleteImage, onDelete, onSave, toSave}:Pr
     };
 
     return (
-        <div className = {classes.content}>
+        <div className = 'content'>
            <Form
                 {...layout}
                 form={form}
@@ -163,11 +163,11 @@ const Index = ({data, onChooseImage, onDeleteImage, onDelete, onSave, toSave}:Pr
                     label="Link"
                     name="link"
                 >
-                    <Input.Search enterButton={<Button className = {classes.btnScrape} loading = {scrapping}>Scrap for update</Button>}  onSearch = {()=>scrapeHotelData()}/>
+                    <Input.Search enterButton={<Button style = {{border:'none', width:'100%', height:'100%', backgroundColor:'transparent'}} loading = {scrapping}>Scrap for update</Button>}  onSearch = {()=>scrapeHotelData()}/>
                 </Form.Item>
 
                 <Form.Item label="Preview">
-                    <div className = {classes.imagePreview}>
+                    <div className = 'imagePreview'>
                         {renderPreviewField()}
                     </div>
                 </Form.Item>

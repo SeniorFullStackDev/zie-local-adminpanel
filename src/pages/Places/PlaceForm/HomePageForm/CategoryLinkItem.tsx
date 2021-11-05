@@ -2,7 +2,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import { Form, Input, Button, Checkbox } from 'antd';
 import { DeleteFilled, EditFilled } from '@ant-design/icons';
 import { deleteHomeCategoryLinks } from 'api/api-place';
-import classes from './style.module.scss';
+ 
 import GalleryDialog from 'components/GalleryDialog';
 
 
@@ -66,7 +66,7 @@ const CategoryLinkItem = ({data, onChange, onChooseImage, onDeleteImage, afterDe
             return (
                 <>
                     <img src = {data.photo.sizes.thumbnail} />
-                    <div className = {classes.actionBar}>
+                    <div className = 'actionBar'>
                         <span>
                             <EditFilled onClick = {()=>{
                                 setVisibleGallery(true);
@@ -125,7 +125,7 @@ const CategoryLinkItem = ({data, onChange, onChooseImage, onDeleteImage, afterDe
     if(deleted) return null;
 
     return (
-        <div className = {classes.content}>
+        <div className = 'content'>
            <Form
                 {...layout}
                 form={form}
@@ -152,7 +152,7 @@ const CategoryLinkItem = ({data, onChange, onChooseImage, onDeleteImage, afterDe
                     <Input />
                 </Form.Item>
                 <Form.Item label="Preview">
-                    <div className = {classes.imagePreview}>
+                    <div className = "imagePreview">
                         {renderPreviewField()}
                     </div>
                 </Form.Item>

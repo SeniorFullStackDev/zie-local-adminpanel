@@ -8,7 +8,7 @@ import MailOutlined from '@ant-design/icons/MailOutlined';
 
 import history from 'modules/history';
 import { PlaceType } from 'modules/types';
-import classes from './style.module.scss';
+ 
 
 const { Option } = Select;
 
@@ -131,9 +131,6 @@ const AllAdmins = ({ match }: any) => {
 
     return (
 		<Card title = "Admins">
-			{/* <div className={classes.tableHeader}>
-				<Button onClick={onCreateNewUser}>New</Button>
-			</div> */}
 			<Table columns={columns} dataSource={tableData} onChange = {onChange}  pagination={{ defaultPageSize: pageSize, showSizeChanger: false, total}} />
 
 			<div style = {{textAlign:'right', marginTop:24}}>

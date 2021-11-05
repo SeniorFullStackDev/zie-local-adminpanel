@@ -124,3 +124,7 @@ export const updateHomeCategoryLinks = (payload) => {
 export const deleteHomeCategoryLinks = (id) => {
     return deleteRequest(`${config.baseURL}pages/home/category_links/${id}`);
 };
+
+export const getAllSeo = (offset=0, limit=20, query='') => {
+	return getRequest(`${config.baseURL}places/seo/all?offset=${offset}&limit=${limit}&query=${query}`);
+};

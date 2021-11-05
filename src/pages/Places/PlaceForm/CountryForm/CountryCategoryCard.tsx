@@ -5,7 +5,7 @@ import { DeleteFilled, EditFilled, CloseOutlined } from '@ant-design/icons';
 import { Editor } from '@tinymce/tinymce-react';
 import GalleryDialog from 'components/GalleryDialog';
 
-import classes from './style.module.scss';
+ 
 import { generateUrlFromTitle } from 'utils';
 
 const { Option } = Select;
@@ -155,7 +155,7 @@ const index = ({contentKey, parentPlace, categoryPageId, countryId, data, cities
                 return (
                     <>
                         <img src = {photo.url} />
-                        <div className = {classes.actionBar}>
+                        <div className = 'actionBar'>
                             <span>
                                 <EditFilled onClick = {()=>onChooseImage()} style = {{color:'#fff'}} />
                             </span>
@@ -184,6 +184,11 @@ const index = ({contentKey, parentPlace, categoryPageId, countryId, data, cities
           }).length == 0;
         };
       }
+
+
+    if(countryId == 0){
+        return <Card title = {data.label}><h1>Available after place's basic detail is ready.</h1></Card>;
+    }
 
       
     // const unSelectedCities = cities.filter(comparer(childrenPlaces));
@@ -235,7 +240,7 @@ const index = ({contentKey, parentPlace, categoryPageId, countryId, data, cities
 
                         <br/>
                         Preview:
-                        <div className = {classes.imagePreview}> 
+                        <div className = "imagePreview"> 
                             {renderPreviewField(thumbnail)}
                         </div>
                         <br/>
@@ -243,11 +248,11 @@ const index = ({contentKey, parentPlace, categoryPageId, countryId, data, cities
                         {
                             childrenPlaces.map((child:any, index:number)=>(
                                 <Form.Item key={index}>
-                                    <div className = {classes.cityRow}>
+                                    <div className = "cityRow">
                                         <span>{index+1}.</span><Select value = {child.sub_place_id} onChange = {(val)=>onChangeChildPlace(val, index)}>
                                             {cities.map((ele, index)=>(<Option value = {ele.id} key = {index} disabled = {childrenPlaces.findIndex(cp=>cp.sub_place_id == ele.id) > -1 } >{ele.title}</Option>))}
                                         </Select>
-                                        <Button className = {classes.delBtnCity} onClick = {()=>removeCity(index)}><CloseOutlined /></Button>
+                                        <Button className = "delBtnCity" onClick = {()=>removeCity(index)}><CloseOutlined /></Button>
                                     </div>
                                 </Form.Item>
                             ))

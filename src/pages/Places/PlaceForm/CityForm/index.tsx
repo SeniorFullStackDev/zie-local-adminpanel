@@ -19,7 +19,7 @@ import HotelSection from '../../HotelSection';
 import CommentSection from '../../CommentSection';
 import CityCategoryCard from './CityCategoryCard';
 import SEOCard from 'components/SEOCard';
-import classes from './style.module.scss';
+ 
 import { generateUrlFromTitle } from 'utils';
 
 const { Option } = Select;
@@ -39,7 +39,7 @@ interface Props {
 
 const CityForm = ({ placeDetail, allPlaces }:Props) => {
 
-    console.log('placeDetail ====>', placeDetail);
+    console.log('placeDetail ===>', placeDetail);
 
     const editorRef = useRef<any>(null);
     const secondEditorRef = useRef<any>(null);
@@ -58,6 +58,7 @@ const CityForm = ({ placeDetail, allPlaces }:Props) => {
     const [isRequesting, setIsRequesting] = useState(false);
     const [gallery, setGallery] = useState<any[]>([]);
     const [visibleGalleryDialog, setVisibleGallery] = useState(false);
+    const [isAvailableonLive, setAvailableOnLive] = useState(false);
 
 
     const [cityContents, setCityContents] = useState<any>({
@@ -118,9 +119,11 @@ const CityForm = ({ placeDetail, allPlaces }:Props) => {
     useEffect(()=>{
         cityDetail.region_id = `${cityDetail.region.id}`;
 
-        if(cityDetail.region){
+        if(cityDetail.region.id){
             cityDetail.bounds = cityDetail.region.bounds;
         }
+
+        setAvailableOnLive(cityDetail.status == 'active');
 
         form.setFieldsValue(cityDetail);
         setPlaceContent(cityDetail.content);
@@ -138,7 +141,6 @@ const CityForm = ({ placeDetail, allPlaces }:Props) => {
         setCityContents(tempCityContent);
     }, [cityDetail]);
 
-    console.log('citycontent ==>', cityContents);
 
     const onFinish = async (value:any) => {
         setErrors({});
@@ -155,7 +157,9 @@ const CityForm = ({ placeDetail, allPlaces }:Props) => {
 
         setIsRequesting(true);
         if(parseInt(placeId) > 0){
-            await updatePlaceDetail(placeId, value);
+            const response = await updatePlaceDetail(placeId, value);
+            setAvailableOnLive(response.body.status == 'active');
+
         }else{
 
             const parentPlaceObj = allPlaces.filter((ele)=>ele.id == parseInt(value.place_parent));
@@ -223,12 +227,11 @@ const CityForm = ({ placeDetail, allPlaces }:Props) => {
     const regionOptions = allRegions.filter((ele:any)=>(ele.region_title)?ele.region_title.includes(searchRegionTitle):false).map((d:any) => <Option key={d.id} value={`${d.id}`}>{d.region_title}</Option>);
 
     const renderPreviewField = (photo:any) => {
-        console.log('photo ====>', photo);
         if(photo){
             return (
                 <>
                     <img src = {photo.url} />
-                    <div className = {classes.actionBar}>
+                    <div className = 'actionBar'>
                         <span>
                             <EditFilled onClick = {()=>onChooseImage()} style = {{color:'#fff'}} />
                         </span>
@@ -250,9 +253,18 @@ const CityForm = ({ placeDetail, allPlaces }:Props) => {
         <>
         <Row gutter = {16}>
             <Col span = {20}>
-                <Card id = "place-detail" title = {placeDetail.title} extra = {<><Button onClick = {()=>{
-                    window.open(`${config.fontend}${placeDetail.guid}`, '_blank');
-                }}>Visit Page</Button> <Button style = {{backgroundColor:'#0ab068', color:'#fff'}} loading = {isRequesting} onClick = {()=>{form.submit();}}>Publish</Button></>}>
+                <Card id = "place-detail" title = {placeDetail.title} extra = {
+                placeId > 0 ? 
+                <>
+                    {isAvailableonLive && <Button onClick = {()=>{window.open(`${config.fontend}${placeDetail.guid}`, '_blank');}}>Visit Page</Button>}
+                    <Button style = {{backgroundColor:'#0ab068', color:'#fff', marginLeft:16}} loading = {isRequesting} onClick = {()=>{form.submit();}}>Publish</Button>
+                </>
+                :
+                <>
+                    <Button onClick = {()=>{form.submit();}}>Add As Draft</Button>
+                    <Button style = {{backgroundColor:'#0ab068', color:'#fff', marginLeft:16}} loading = {isRequesting} onClick = {()=>{form.submit();}}>Add New</Button>
+                </>
+                }>
 
                     <GalleryDialog open = {visibleGalleryDialog} onSelect = {onSelectPhoto} onClose = {()=>{setVisibleGallery(false);}}/>
 
@@ -267,13 +279,34 @@ const CityForm = ({ placeDetail, allPlaces }:Props) => {
                             />
                         ))
                     }
-
-
-
-                    <div className = {classes.imagePreview}>
+                    <div className = "imagePreview">
                         {renderPreviewField(thumbnail)}
                     </div>
+
                     <Form form={form} style={{ marginTop: 20 }} onFinish={onFinish}>
+
+                    {
+                        placeId > 0 && 
+                        <>
+                            Status:
+                            <Form.Item
+                                name="status"
+                                rules={[{ required: true, message: 'required!' }]}
+                            >
+                                <Select
+                                        defaultActiveFirstOption={false}
+                                        showArrow={false}
+                                        filterOption={false}
+                                        style = {{width:'100%'}}
+                                    >
+                                    <Option value="active">Active</Option>
+                                    <Option value="draft">Draft</Option>
+                                </Select>
+                            </Form.Item>
+                        </>
+                    }
+
+
                     Place title:
                     <Form.Item
                         name="title"

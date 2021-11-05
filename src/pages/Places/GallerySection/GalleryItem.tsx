@@ -1,7 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { Form, Input, Button, Checkbox } from 'antd';
 import { DeleteFilled, EditFilled } from '@ant-design/icons';
-import classes from './style.module.scss';
 
 interface Props {
     data:any;
@@ -46,7 +45,7 @@ const GalleryItem = ({data, toSave, onChooseImage, onDeleteImage, onDelete, onSa
                 return (
                     <>
                         <img src = {data.photo[0].sizes.thumbnail} />
-                        <div className = {classes.actionBar}>
+                        <div className = 'actionBar'>
                             <span>
                                 <EditFilled onClick = {()=>onChooseImage(form.getFieldsValue())} style = {{color:'#fff'}} />
                             </span>
@@ -106,7 +105,7 @@ const GalleryItem = ({data, toSave, onChooseImage, onDeleteImage, onDelete, onSa
     };
 
     return (
-        <div className = {classes.content}>
+        <div className = 'content'>
            <Form
                 {...layout}
                 form={form}
@@ -133,7 +132,7 @@ const GalleryItem = ({data, toSave, onChooseImage, onDeleteImage, onDelete, onSa
                     <Input />
                 </Form.Item>
                 <Form.Item label="Preview">
-                    <div className = {classes.imagePreview}>
+                    <div className = 'imagePreview'>
                         {renderPreviewField()}
                     </div>
                 </Form.Item>

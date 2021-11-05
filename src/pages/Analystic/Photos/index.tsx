@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { Table, Tag, Space, Button, Modal, Form, Input } from 'antd';
 import { getAllCitiesForPhotoAnalystic } from 'api/api-place';
 import DeleteOutlined from '@ant-design/icons/DeleteOutlined';
-import classes from './style.module.scss';
 
 const AnalysticPhotos = ({ match }: any) => {
 
@@ -43,7 +42,7 @@ const AnalysticPhotos = ({ match }: any) => {
 	}, []);
 
     return (
-		<Table className={classes.tableStripedRows} columns={columns} dataSource={tableData} pagination = {false} />
+		<Table className="table-striped-rows" columns={columns} dataSource={tableData} pagination = {false} />
     );
 };
 

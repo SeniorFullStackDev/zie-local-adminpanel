@@ -3,7 +3,7 @@ import { InfoCircleOutlined, DeleteOutlined, EditOutlined } from '@ant-design/ic
 import { Card, Button, Tabs, Radio, Row, Col, Anchor, Modal, Form, Select, Input } from 'antd';
 import { createHomeCategoryLinks } from 'api/api-place';
 import { DeleteFilled, EditFilled } from '@ant-design/icons';
-import classes from './style.module.scss';
+ 
 import GalleryDialog from 'components/GalleryDialog';
 
 
@@ -64,7 +64,7 @@ export default ({categoryLinks, onAddedNewItem}:any) => {
             return (
                 <>
                     <img src = {photo.sizes.thumbnail} />
-                    <div className = {classes.actionBar}>
+                    <div className = 'actionBar'>
                         <span>
                             <EditFilled onClick = {()=>{
                                 setVisibleGallery(true);
@@ -147,7 +147,7 @@ export default ({categoryLinks, onAddedNewItem}:any) => {
 					</Form.Item>
 
                     <Form.Item label="Preview">
-                        <div className = {classes.imagePreview}>
+                        <div className = "imagePreview">
                             {renderPreviewField()}
                         </div>
                     </Form.Item>

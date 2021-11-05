@@ -3,6 +3,7 @@ import { applyMiddleware, combineReducers, compose, createStore } from 'redux';
 // import blockchain from "./blockchain/blockchain.reducer";
 // import blockchain from "./blockchain/blockchain.reducer";
 import authReducer from './auth/auth.reducer';
+import placeReducer from './place/place.reducer';
 import galleryReducer from './gallery/gallery.reducer';
 import watchAuthSaga from './auth/auth.saga';
 
@@ -11,6 +12,7 @@ const sagaMiddleware = createSagaMiddleware();
 const rootReducer = combineReducers({
   authReducer,
   galleryReducer,
+  placeReducer,
 });
 
 const store = createStore(

@@ -8,7 +8,7 @@ import MailOutlined from '@ant-design/icons/MailOutlined';
 
 import history from 'modules/history';
 import { PlaceType } from 'modules/types';
-import classes from './style.module.scss';
+ 
 
 interface Item {
     id: string;

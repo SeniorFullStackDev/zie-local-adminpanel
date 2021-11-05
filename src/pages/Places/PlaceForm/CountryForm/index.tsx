@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { Card, Form, Input, InputNumber, Button, Image, Upload, Row, Col, Select, Anchor } from 'antd';
+import { Card, Form, Input, InputNumber, Button, Image, Upload, Row, Col, Select, Anchor, Alert } from 'antd';
 import { Table, Badge, Menu, Dropdown, Space } from 'antd';
 import { DeleteFilled, DownOutlined, EditFilled, CaretDownOutlined, CaretUpOutlined } from '@ant-design/icons';
 import GallerySection from '../../GallerySection';
@@ -8,6 +8,9 @@ import { Editor } from '@tinymce/tinymce-react';
 import { createPlace, getPlaceDetail, searchPlaces, getAllPlacesWithTitle, updatePlaceDetail, getAllCities } from 'api/api-place';
 import { getAllRegions } from 'api/api-region';
 
+import history from 'modules/history';
+import { PATHS } from 'constants/routes';
+
 import config from 'api/config';
 import GalleryDialog from 'components/GalleryDialog';
 import CollapseCard from 'components/CollapseCard';
@@ -15,8 +18,10 @@ import HotelSection from '../../HotelSection';
 import CommentSection from '../../CommentSection';
 import CountryCategoryCard from './CountryCategoryCard';
 import SEOCard from 'components/SEOCard';
+import CityList from './CityList';
 
-import classes from './style.module.scss';
+import { generateUrlFromTitle } from 'utils';
+ 
 const { Option } = Select;
 const { Link } = Anchor;
 
@@ -29,10 +34,10 @@ const menu = (
 
 interface Props {
     placeDetail:any,
-    continetns:any[],
+    continents:any[],
 }
 
-const Index = ({ placeDetail, continetns }:Props) => {
+const Index = ({ placeDetail, continents }:Props) => {
 
     console.log('placeDetail ====>', placeDetail);
 
@@ -40,6 +45,8 @@ const Index = ({ placeDetail, continetns }:Props) => {
     const editorRef = useRef<any>(null);
     const secondEditorRef = useRef<any>(null);
     const [searchParentTitle, setSearchParentTitle] = useState<any>([]);
+    const [isAvailableonLive, setAvailableOnLive] = useState(false);
+    const [errors, setErrors] = useState<any>({});
     // const [searchRegionTitle, setSearchRegionTitle] = useState<any>(placeDetail.region.region_title);
 
 
@@ -124,6 +131,8 @@ const Index = ({ placeDetail, continetns }:Props) => {
         //     }
         // });
         
+        setAvailableOnLive(placeDetail.status == 'active');
+
         form.setFieldsValue(placeDetail);
         setPlaceContent(placeDetail.content);
         setGallery(placeDetail.gallery);
@@ -167,7 +176,23 @@ const Index = ({ placeDetail, continetns }:Props) => {
         if(parseInt(placeId) > 0){
             await updatePlaceDetail(placeId, value);
         }else{
-            await createPlace(value);
+            const parentPlaceObj = continents.filter((ele)=>ele.id == parseInt(value.place_parent));
+            const subGuid = generateUrlFromTitle(value.title);
+            const guid = `${parentPlaceObj[0].guid}${subGuid}/`;
+            value.guid = guid;
+            value.place_type = 'country';
+            
+            const response = await createPlace(value);
+            if(response.body){
+                if(response.body.error){
+                    // handle error
+                    setErrors(response.body.error);
+                }else{
+                    history.push(`${PATHS.DASHBOARD}${PATHS.PLACES}/${response.body.id}`);
+
+                }
+                console.log('response ==>', response.body);
+            }
         }
         setIsRequesting(false);
     };
@@ -207,7 +232,7 @@ const Index = ({ placeDetail, continetns }:Props) => {
 
     
 
-    const options = continetns.filter((ele:any)=>ele.title.includes(searchParentTitle)).map((d:any) => <Option key={d.id} value={`${d.id}`}>{d.title}</Option>);
+    const options = continents.filter((ele:any)=>ele.title.includes(searchParentTitle)).map((d:any) => <Option key={d.id} value={`${d.id}`}>{d.title}</Option>);
     // const regionOptions = allRegions.filter((ele:any)=>ele.region_title.includes(searchRegionTitle)).map((d:any) => <Option key={d.id} value={`${d.id}`}>{d.region_title}</Option>);
 
 
@@ -219,7 +244,7 @@ const Index = ({ placeDetail, continetns }:Props) => {
                 return (
                     <>
                         <img src = {photo.url} />
-                        <div className = {classes.actionBar}>
+                        <div className = 'actionBar'>
                             <span>
                                 <EditFilled onClick = {()=>onChooseImage()} style = {{color:'#fff'}} />
                             </span>
@@ -241,16 +266,64 @@ const Index = ({ placeDetail, continetns }:Props) => {
         <>
             <Row gutter = {16}>
             <Col span = {20}>
-                <Card id = "place-detail" title = {placeDetail.title} extra = {<><Button onClick = {()=>{
-                    window.open(`${config.fontend}${placeDetail.guid}`, '_blank');
-                }}>Visit Page</Button> <Button style = {{backgroundColor:'#0ab068', color:'#fff'}} loading = {isRequesting} onClick = {()=>{form.submit();}}>Publish</Button></>}>
+                <Card id = "place-detail" title = {placeDetail.title} extra = {
+                    placeId > 0 ? 
+                    <>
+                        {isAvailableonLive && <Button onClick = {()=>{window.open(`${config.fontend}${placeDetail.guid}`, '_blank');}}>Visit Page</Button>}
+                        <Button style = {{backgroundColor:'#0ab068', color:'#fff', marginLeft:16}} loading = {isRequesting} onClick = {()=>{form.submit();}}>Publish</Button>
+                    </>
+                    :
+                    <>
+                        <Button onClick = {()=>{form.submit();}}>Add As Draft</Button>
+                        <Button style = {{backgroundColor:'#0ab068', color:'#fff', marginLeft:16}} loading = {isRequesting} onClick = {()=>{form.submit();}}>Add New</Button>
+                    </>
+
+                    // <>
+                    //     <Button onClick = {()=>{window.open(`${config.fontend}${placeDetail.guid}`, '_blank');}}>Visit Page</Button>
+                    //     <Button style = {{backgroundColor:'#0ab068', color:'#fff'}} loading = {isRequesting} onClick = {()=>{form.submit();}}>Publish</Button>
+                    // </>
+                }>
 
                     <GalleryDialog open = {visibleGalleryDialog} onSelect = {onSelectPhoto} onClose = {()=>{setVisibleGallery(false);}}/>
 
-                    <div className = {classes.imagePreview}>
+                    {
+                        Object.keys(errors).map((key:any, index:number)=>(
+                            <Alert
+                                message="Error"
+                                description={errors[key]}
+                                type="error"
+                                closable
+                                style = {{marginBottom:8}}
+                            />
+                        ))
+                    }
+
+                    <div className = 'imagePreview'>
                         {renderPreviewField(thumbnail)}
                     </div>
                     <Form form={form} style={{ marginTop: 20 }} onFinish={onFinish}>
+
+                    {
+                        placeId > 0 && 
+                        <>
+                            Status:
+                            <Form.Item
+                                name="status"
+                                rules={[{ required: true, message: 'required!' }]}
+                            >
+                                <Select
+                                        defaultActiveFirstOption={false}
+                                        showArrow={false}
+                                        filterOption={false}
+                                        style = {{width:'100%'}}
+                                    >
+                                    <Option value="active">Active</Option>
+                                    <Option value="draft">Draft</Option>
+                                </Select>
+                            </Form.Item>
+                        </>
+                    }
+
                     Place title:
                     <Form.Item
                         name="title"
@@ -361,6 +434,10 @@ const Index = ({ placeDetail, continetns }:Props) => {
                     </Form>
                 </Card>
                 <br/>
+
+                <CityList id = "city-list-section" countryId = {placeId} cities = {placeDetail.children} />
+
+                <br/>
                 <GallerySection id = "gallery-section" gallery = {gallery} placeId = {placeId} placeDetail = {placeDetail} toSave = {isRequesting} />
                 <br/>
                 {/* <CollapseCard title = "title">
@@ -381,6 +458,7 @@ const Index = ({ placeDetail, continetns }:Props) => {
             <Col span = {4}>
                 <Anchor offsetTop = {80} onClick={handleClick}>
                     <Link href="#place-detail" title="Place Info" />
+                    <Link href="#city-list-section" title="City List" />
                     <Link href="#gallery-section" title="Gallery" />
                     <Link href="#category-content" title="Category Contents" />
                     <Link href="#external-link-section" title="External Links" />

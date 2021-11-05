@@ -5,6 +5,7 @@ import { getComments } from 'api/api-place';
 import { getAll, deleteComment, createComment } from 'api/api-comments';
 import { getAllfakeUsers } from 'api/api-user';
 import { InfoCircleOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
+import CreateReviewForm from 'pages/Comments/CreateReviewForm';
 
 import { Link } from 'react-router-dom';
 
@@ -39,9 +40,6 @@ const Index = ({ id, placeId }: Prpos) => {
     const [tableData, setTableData] = useState<any[]>([]);
 	const [tablePaginationOption, setTablePaginationOption] = useState<{total:number, curPage:number, pageSize:number}>({total:0, curPage:1, pageSize:10});
 	const [isModalVisible, setModalVisible] = useState(false);
-	const [isRequesting, setRequesting] = useState(false);
-	const [allFakeUsers, setFakeUsers] = useState<any>([]);
-	const [form] = Form.useForm();
 
     const columns = [
 		{
@@ -92,52 +90,9 @@ const Index = ({ id, placeId }: Prpos) => {
 		loadTable();
 	}, [tablePaginationOption.curPage, placeId]);
 
-	const loadAllFakeUsers = async () => {
-		try {
-			const { body } = await getAllfakeUsers();
-			setFakeUsers(body);
-		}catch(err:any){
-			console.log(err);
-		}
-	};
-
 	const addMoreComments = () => {
 		console.log('-------addMoreComments-----------');
 		setModalVisible(true);
-		//get all users
-		loadAllFakeUsers();
-	};
-
-	const handleOk = () => {
-		console.log('----handleOk----');
-		const values = form.getFieldsValue();
-		values.place_id = placeId;
-
-		if(values.user_id){
-			const authorIndex = allFakeUsers.findIndex((ele:any)=>ele.id == values.user_id);
-			values.comment_author_IP = allFakeUsers[authorIndex].user_ip;
-		}
-		setRequesting(true);
-		createComment(values).then((res)=>{
-			setRequesting(false);
-			setModalVisible(false);
-			notification.open({
-				message: 'Message',
-				description:'New comments is created succesfully.',
-				onClick: () => {
-					console.log('Notification Clicked!');
-				},
-			});
-			loadTable();
-		}).catch((err:any)=>{
-			console.log('createComment ===>', err);
-			setRequesting(false);
-		});
-	};
-
-	const handleCancel = () => {
-		console.log('-----handleCancel------');
-		setModalVisible(false);
 	};
 
     const {pageSize, curPage, total} = tablePaginationOption;
@@ -149,54 +104,12 @@ const Index = ({ id, placeId }: Prpos) => {
     return (
         <Card id = {id} title = "Comments" extra={<Button type="primary" onClick = {addMoreComments}>Add Comment</Button>}>
             <Table columns={columns} dataSource={tableData} onChange = {onChange}  pagination={{ defaultPageSize: pageSize, showSizeChanger: false, total}} />
-
-			<Modal
-				title="Add Review"
-				visible={isModalVisible}
-				onOk={handleOk}
-				onCancel = {handleCancel}
-				footer={[
-					<Button key="back" onClick={handleCancel}>
-						Cancel
-					</Button>,
-					<Button key="submit" type="primary" loading={isRequesting} onClick={handleOk}>
-						Ok
-					</Button>,
-				]}
-			>
-				<Form form={form} labelCol={{span:6}}  wrapperCol = {{span:18}}>
-					<Form.Item
-						label="Author"
-						name="user_id"
-						tooltip={{ title: 'Author', icon: <InfoCircleOutlined /> }}
-						required
-						rules={[{ required: true, message: 'Author is required!' }]}
-					>
-						<Select 
-							showSearch 
-							style={{ width: '100%' }} 
-							filterOption={(input, option:any) =>
-								option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-							}>
-							{
-								allFakeUsers.map((ele:any, index:number)=>(
-									<Select.Option key={ele.id} value={ele.id}>
-										{ele.email}
-									</Select.Option>
-								))
-							}
-						</Select>
-					</Form.Item>
-
-					<Form.Item label="Comments" name="comment_content" required>
-						<Input.TextArea showCount style = {{minHeight: 100}} />
-					</Form.Item>
-
-					<Form.Item label="Rating" name="ratings" required>
-						<Input type="number" max = {5} min = {0} step = {1} />
-					</Form.Item>
-				</Form>
-			</Modal>
+			<CreateReviewForm isModalVisible = {isModalVisible} onClose = {(updated:boolean)=>{
+				if(updated){
+					loadTable();
+				}
+				setModalVisible(false);
+			}} />
         </Card>
     );
 };
