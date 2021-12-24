@@ -1,140 +1,113 @@
 
 
-import React, { useRef, useEffect, useState } from 'react';
-import { Card, Form, Input, InputNumber, Button, Image, Upload, Row, Col, Select } from 'antd';
+import React, { useImperativeHandle, useRef, useEffect, useState } from 'react';
+import { Card, Form, Input, InputNumber, Button, Image, Upload, Row, Col, Select, Tabs, Radio } from 'antd';
 import { Table, Badge, Menu, Dropdown, Space } from 'antd';
 import { DeleteFilled, DownOutlined, EditFilled, CaretDownOutlined, CaretUpOutlined } from '@ant-design/icons';
 import { saveSEOData } from 'api/api-place';
+import { generateYoustSeoJSON } from 'utils';
+import MetadataGenerator from 'utils/metatag-generator';
+import GoogleCard from './GoogleCard';
+import SEOAnalysisCard from './SEOAlalysisCard';
+import ReadabilityCard from './ReadabilityCard';
+import FacebookCard from './FacebookCard';
+import TwitterCard from './TwitterCard';
 
 const { Option } = Select;
 
+const { TabPane } = Tabs;
+
+
 interface Props {
-    placeId:number;
     id?:string;
-    data:any;
-    toSave:boolean;
+    placeDetail:{seo:any};
 }
-const index = ({ placeId, data, id, toSave }:Props) => {
+const index = React.forwardRef(({id, placeDetail}:Props, ref) => {
 
-    const [form] = Form.useForm();
+	console.log('placeDetail ==>', placeDetail);
 
-    const [seoDetail, setSeoDetail] = useState<any>(data);
-    const [editing, setEditing] = useState(false);
-    const [isRequesting, setRequesting] = useState(false);
+    const googleCardRef = useRef<any>();
+    const seoAnalysisRef = useRef<any>();
+    const readablityCardRef = useRef<any>();
+    const facebookCardRef = useRef<any>();
+    const twitterCardRef = useRef<any>();
 
-    useEffect(()=>{
-        if(toSave && editing){
-            form.submit();
-        }
-    }, [toSave]);
+	const getSeoValues = () => {
+		const seoDetail = googleCardRef.current.getSeoDetail();
+		const googleValues = seoDetail.seo;
+		const thumbnail = seoDetail.thumbnail;
 
-    useEffect(()=>{
-        if(data){
-            setSeoDetail(data);
-        }
-    }, [data]);
+		let schema_json;
+		let options;
+		try {
+			if(seoDetail){
+				options = seoDetail.schema_json;
+			}
+			schema_json = generateYoustSeoJSON(options);
+		}catch(err){
+			console.log(err);
+		}
+
+		if(schema_json){
+			schema_json.setTitle(googleValues.title);
+			schema_json.setDescription(googleValues.description);
+			schema_json.setCanonical(googleValues.canonical);
+			schema_json.setRobots({index: googleValues.index, follow: googleValues.follow});
+
+			if(facebookCardRef.current){
+				const ogDetail = facebookCardRef.current.getSeoDetail();
+				// set og data
+				schema_json.setOgTitle(ogDetail.og_title);
+				schema_json.setOgDescription(ogDetail.og_description);
+				schema_json.setOgLocal(ogDetail.og_locale);
+				schema_json.setOgType(ogDetail.og_type);
+				schema_json.setOgSiteName(ogDetail.og_site_name);
+				schema_json.setOgImage(ogDetail.og_image);
+			}
+			
+		}
+
+		return { schema_json,  thumbnail };
+	};
+
+	useImperativeHandle(ref, () => (
+		{
+			getSeoDetail: () => {
+				return getSeoValues();
+			}
+		}
+	), []);
+
+	const [toggle, toggleCard] = useState(true);
+
+	
 
 
-    useEffect(()=>{
-        console.log('seoDetail ===>', seoDetail);
-        if(seoDetail){
-            const schema_json = seoDetail.schema_json;
-            console.log('schema_json ===>',schema_json);
-            form.setFieldsValue({...schema_json, ...schema_json.robots });
-        }
-    }, [seoDetail]);
-
-    const [toggle, toggleCard] = useState(true);
-
-    const onSave = (values:any) =>{
-        let schema_json = {
-            robots: {}
-        };
-        try {
-            schema_json = seoDetail.schema_json;
-        }catch(err){
-            console.log(err);
-        }
-        const data = {
-            schema_json: {
-                ...schema_json,
-                title: values.title, 
-                description: values.description, 
-                canonical: values.canonical, 
-                robots: {
-                    ...schema_json.robots,
-                    index: values.index,
-                    follow: values.follow,
-                } 
-            }
-        };
-        setRequesting(true);
-        saveSEOData(placeId, data).then((res)=>{
-            setEditing(false);
-            setRequesting(false);
-        }).catch(err=>console.log);
-    };
-
-    if(placeId == 0){
-        return <Card id = {id} title = "SEO"><h1>Available after place's basic detail is ready.</h1></Card>;
-    }
-
-    return (
-        <Card id = {id} title = "SEO" extra = {(<Button style = {{border:'none'}}  shape = "circle" onClick = {()=>toggleCard(!toggle)}>{toggle && <CaretUpOutlined />}{!toggle && <CaretDownOutlined />}</Button>)} bodyStyle = {{padding:0}}>
-            {toggle && 
+	return (
+		<Card id = {id} title = "SEO" extra = {(<Button style = {{border:'none'}}  shape = "circle" onClick = {()=>toggleCard(!toggle)}>{toggle && <CaretUpOutlined />}{!toggle && <CaretDownOutlined />}</Button>)} bodyStyle = {{padding:0}}>
+			{toggle && 
                 <div style = {{padding:24}}>
-                    <Form form={form} onChange = {()=>setEditing(true)} onFinish = {onSave}>
-                        SEO Title:
-                        <Form.Item
-                            name="title"
-                            rules={[{ required: true, message: 'required!' }]}
-                        >
-                            <Input />
-                        </Form.Item>
-                        Meta Description:
-                        <Form.Item
-                            name="description"
-                            rules={[{ required: true, message: 'required!' }]}
-                        >
-                            <Input.TextArea />
-                        </Form.Item>
-                        Canonical URL:
-                        <Form.Item
-                            name="canonical"
-                        >
-                            <Input />
-                        </Form.Item>
-
-                        Allow search engines to show this Page in search results?
-                        <Form.Item
-                            name="index"
-                            rules={[{ required: true, message: 'required!' }]}
-                        >
-                             <Select style={{ width: 120 }} onChange = {()=>setEditing(true)}>
-                                <Option value="index">Yes</Option>
-                                <Option value="noindex">No</Option>
-                            </Select>
-                        </Form.Item>
-
-                        Should search engines follow links on this Page
-                        <Form.Item
-                            name="follow"
-                            rules={[{ required: true, message: 'required!' }]}
-                        >
-                            <Select style={{ width: 120 }} onChange = {()=>setEditing(true)}>
-                                <Option value="follow">Yes</Option>
-                                <Option value="nofollow">No</Option>
-                            </Select>
-                        </Form.Item>
-
-                        {/* <Form.Item>
-                            {editing && <Button htmlType = "submit" type = "primary" loading = {isRequesting} >Save</Button>}
-                        </Form.Item> */}
-                    </Form>
+                    <Tabs defaultActiveKey="google" type="card">
+                        <TabPane tab="Google" key="google">
+                            <GoogleCard data = {placeDetail} ref = {googleCardRef} />
+                        </TabPane>
+                        <TabPane tab="SEO Analysis" key="seo-analysis">
+                            <SEOAnalysisCard data = {placeDetail} ref = {seoAnalysisRef}/>
+                        </TabPane>
+                        <TabPane tab="Readability" key="readability">
+                            <ReadabilityCard data = {placeDetail} ref = {readablityCardRef} />
+                        </TabPane>
+                        <TabPane tab="Facebook Card" key="facebook-card">
+                            <FacebookCard data = {placeDetail} ref = {facebookCardRef} />
+                        </TabPane>
+                        <TabPane tab="Twitter Card" key="twitter-card">
+                            <TwitterCard data = {placeDetail} ref = {twitterCardRef} />
+                        </TabPane>
+                    </Tabs>
                 </div>
-            }
-        </Card>
-    );
-};
+			}
+		</Card>
+	);
+});
 
 export default index; 

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Table, Tag, Space, Button, Modal, Form, Input, Badge } from 'antd';
 import { getAll, deleteUser, sendPasswordResetLink } from 'api/api-user';
@@ -110,30 +110,33 @@ const AllUsers = ({ match }: any) => {
 	];
 
 	const [tableData, setTableData] = useState<PlaceType[]>([]);
-	const [tablePaginationOption, setTablePaginationOption] = useState<{total:number, curPage:number, pageSize:number}>({total:0, curPage:1, pageSize:10});
+
+	const tablePaginationOptionRef = useRef({total:0, curPage:1, pageSize:10});
+
+	// const [tablePaginationOption, setTablePaginationOption] = useState<{total:number, curPage:number, pageSize:number}>({total:0, curPage:1, pageSize:10});
 
 	useEffect(()=>{
 		loadTable();
-	}, [tablePaginationOption.curPage]);
+	}, []);
 
     const loadTable = async (query='')=>{
-		const {pageSize, curPage} = tablePaginationOption;
-		console.log('curPage --->', tablePaginationOption);
+		const {pageSize, curPage} = tablePaginationOptionRef.current;
 		const { body } = await getAll(pageSize * (curPage - 1), pageSize, query);
+		tablePaginationOptionRef.current = { curPage, pageSize, total:body.total };
 		setTableData(body.data);
-		setTablePaginationOption({curPage, pageSize, total:body.total});
 	};
 
-	const onChange = (pagination:any, filters:any, sorter:any, extra:any) => {
-		console.log('tablePaginationOption --->', tablePaginationOption);
-		setTablePaginationOption({...tablePaginationOption, curPage: pagination.current});
+	const onChange = async (pagination:any, filters:any, sorter:any, extra:any) => {
+
+		tablePaginationOptionRef.current = {...tablePaginationOptionRef.current, curPage: pagination.current};
+		loadTable();
 	};
 
 	const onCreateNewUser = () => {
 		history.push(`${match.path}/create`);
 	};
 
-	const {pageSize, curPage, total} = tablePaginationOption;
+	const {pageSize, curPage, total} = tablePaginationOptionRef.current;
 
 	const onFinishSearch = (e:any) => {
 		console.log('-----onFinishSearch----', e.target.value);
@@ -145,7 +148,7 @@ const AllUsers = ({ match }: any) => {
         <div className='table-header'>
 			{/* <Form form={form} style={{ marginTop: 20 }} onFinish={onFinishSearch}> */}
 			{/* </Form> */}
-			<Input.Search style={{ width: '40%' }} onPressEnter = {onFinishSearch}/>
+			<Input.Search style={{ width: '40%' }} onPressEnter = {onFinishSearch} onSearch = {loadTable}/>
 			<Button onClick={onCreateNewUser}>New</Button>
 		</div>
 		<Table columns={columns} dataSource={tableData} onChange = {onChange}  pagination={{ defaultPageSize: pageSize, showSizeChanger: false, total}} />

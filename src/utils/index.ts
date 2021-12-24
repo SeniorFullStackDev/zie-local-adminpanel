@@ -1,3 +1,9 @@
+// import { MetadataGenerator } from 'metatags-generator';
+
+import MetadataGenerator from './metatag-generator';
+
+
+
 export const formatPrice = (price: number) => {
 	return price.toLocaleString('en-AU', {
 		style: 'currency',
@@ -21,4 +27,9 @@ export const generateUrlFromTitle = (title:string) => {
 		return title.toLowerCase().match(/[a-zA-Z0-9]+/g)?.join('-');
 	}
 	return '';
+};
+
+
+export const generateYoustSeoJSON = (options:any) => {
+	return new MetadataGenerator(options);
 };

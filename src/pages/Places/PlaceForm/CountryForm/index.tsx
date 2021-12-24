@@ -4,8 +4,8 @@ import { Table, Badge, Menu, Dropdown, Space } from 'antd';
 import { DeleteFilled, DownOutlined, EditFilled, CaretDownOutlined, CaretUpOutlined } from '@ant-design/icons';
 import GallerySection from '../../GallerySection';
 import ExternalLinkSection from '../../ExternalLinkSection';
-import { Editor } from '@tinymce/tinymce-react';
-import { createPlace, getPlaceDetail, searchPlaces, getAllPlacesWithTitle, updatePlaceDetail, getAllCities } from 'api/api-place';
+import HTMLEditor from 'components/HTMLEditor';
+import { saveSEOData, createPlace, getPlaceDetail, searchPlaces, getAllPlacesWithTitle, updatePlaceDetail, getAllCities } from 'api/api-place';
 import { getAllRegions } from 'api/api-region';
 
 import history from 'modules/history';
@@ -21,7 +21,9 @@ import SEOCard from 'components/SEOCard';
 import CityList from './CityList';
 
 import { generateUrlFromTitle } from 'utils';
- 
+import MetadataGenerator from 'utils/metatag-generator';
+
+
 const { Option } = Select;
 const { Link } = Anchor;
 
@@ -39,25 +41,24 @@ interface Props {
 
 const Index = ({ placeDetail, continents }:Props) => {
 
-    console.log('placeDetail ====>', placeDetail);
-
     const placeId = placeDetail.id;
     const editorRef = useRef<any>(null);
     const secondEditorRef = useRef<any>(null);
     const [searchParentTitle, setSearchParentTitle] = useState<any>([]);
     const [isAvailableonLive, setAvailableOnLive] = useState(false);
     const [errors, setErrors] = useState<any>({});
-    // const [searchRegionTitle, setSearchRegionTitle] = useState<any>(placeDetail.region.region_title);
-
 
     const [allRegions, setAllRegions] = useState<any>([placeDetail.region]);
-    const [thumbnail, setThumbnail] = useState<any>();
+
     const [placeContent, setPlaceContent] = useState<string>('');
     const [secondPlaceContent, setSecondPlaceContent] = useState<string>('');
     const [isRequesting, setIsRequesting] = useState(false);
     const [gallery, setGallery] = useState<any[]>([]);
     const [cities, setCities] = useState<any[]>([]);
-    const [visibleGalleryDialog, setVisibleGallery] = useState(false);
+
+    const seoCardRef = useRef<any>();
+
+
     const [categoryPages, setCategoryPages] = useState<any>({
         activities:{
             label:'Activities',
@@ -108,35 +109,15 @@ const Index = ({ placeDetail, continents }:Props) => {
             child_places: []
         }
     });
-    // const log = () => {
-    //     if (editorRef.current) {
-    //     console.log(editorRef.current.getContent());
-    //     }
-    // };
     const [form] = Form.useForm();
 
     useEffect(()=>{
-        // getAllPlacesWithTitle(match.params.placeId).then(data=>{
-        //     setAllPlaces(data.body);
-        //     if(parseInt(match.params.placeId) > 0){
-        //         getPlaceDetail(match.params.placeId).then(data=>{
-        //             console.log('getPlaceDetail ===>', data.body);
-        //             form.setFieldsValue(data.body);
-        //             setPlaceDetail(data.body);
-        //             setPlaceContent(data.body.content);
-        //             setGallery(data.body.gallery);
-        //             setThumbnail(data.body.thumbnail);
-        //             setSecondPlaceContent(data.body.second_page_content);
-        //         });
-        //     }
-        // });
         
         setAvailableOnLive(placeDetail.status == 'active');
 
         form.setFieldsValue(placeDetail);
         setPlaceContent(placeDetail.content);
         setGallery(placeDetail.gallery);
-        setThumbnail(placeDetail.thumbnail);
         setSecondPlaceContent(placeDetail.second_page_content);
 
         const tempCategoryPages:any = categoryPages;
@@ -166,35 +147,69 @@ const Index = ({ placeDetail, continents }:Props) => {
     }, [placeDetail.id]);
 
     const onFinish = async (value:any) => {
-        if (editorRef.current) {
-            value.content = editorRef.current.getContent();
-            value.second_page_content = secondEditorRef.current.getContent();
-        }
-        value.thumbnail_photo_id = (thumbnail)?thumbnail.id:null;
+
+        let tempPlaceId = placeId;
+        let schema_json;
+
+        setErrors({});
 
         setIsRequesting(true);
-        if(parseInt(placeId) > 0){
-            await updatePlaceDetail(placeId, value);
-        }else{
-            const parentPlaceObj = continents.filter((ele)=>ele.id == parseInt(value.place_parent));
-            const subGuid = generateUrlFromTitle(value.title);
-            const guid = `${parentPlaceObj[0].guid}${subGuid}/`;
-            value.guid = guid;
-            value.place_type = 'country';
-            
-            const response = await createPlace(value);
-            if(response.body){
-                if(response.body.error){
-                    // handle error
-                    setErrors(response.body.error);
-                }else{
-                    history.push(`${PATHS.DASHBOARD}${PATHS.PLACES}/${response.body.id}`);
 
-                }
-                console.log('response ==>', response.body);
+        if(seoCardRef.current){ 
+
+            const seoData : { schema_json: MetadataGenerator, thumbnail:any } =  seoCardRef.current.getSeoDetail();
+            schema_json = seoData.schema_json;
+            if(!seoData.thumbnail){
+                alert('Please select a photo for place\'s thumbnail');
+                return;
             }
+
+
+            if (editorRef.current) {
+                value.content = editorRef.current.getContent();
+                value.second_page_content = secondEditorRef.current.getContent();
+            }
+            
+            value.thumbnail_photo_id = (seoData.thumbnail)?seoData.thumbnail.id:null;
+            
+            if(parseInt(tempPlaceId) > 0){
+                const response = await updatePlaceDetail(tempPlaceId, value);
+                setAvailableOnLive(response.body.status == 'active');
+            }else{
+                const parentPlaceObj = continents.filter((ele)=>ele.id == parseInt(value.place_parent));
+                const subGuid = generateUrlFromTitle(value.title);
+                const guid = `${parentPlaceObj[0].guid}${subGuid}/`;
+                value.guid = guid;
+                value.place_type = 'country';
+                
+                const response = await createPlace(value);
+                if(response.body){
+                    if(response.body.error){
+                        // handle error
+                        setErrors(response.body.error);
+                    }else{
+                        // history.push(`${PATHS.DASHBOARD}${PATHS.PLACES}/${response.body.id}`);
+                        tempPlaceId = response.body.id;
+                    }
+                }
+
+                //seo part
+                schema_json.setOgImage([{id:seoData.thumbnail.id, alt: seoData.thumbnail.description, width: seoData.thumbnail.sizes['large-width'], height: seoData.thumbnail.sizes['large-height'], url: seoData.thumbnail.sizes.large, type:'image/jpeg' }]);
+
+                schema_json.addWebPageGraphObj({url:value.guid, name: schema_json.title});
+
+                schema_json.setOgUrl(value.guid);
+
+                schema_json.setTwitterImage(seoData.thumbnail.sizes.large);
+            }
+
+            //update seo detail
+            const seoRes = await saveSEOData(tempPlaceId, { schema_json });
+            history.push(`${PATHS.DASHBOARD}${PATHS.PLACES}/${tempPlaceId}`);
         }
+
         setIsRequesting(false);
+
     };
 
 
@@ -202,22 +217,6 @@ const Index = ({ placeDetail, continents }:Props) => {
         setSearchParentTitle(value);
     };
 
-    const onSelectPhoto = (ele:any) => {
-        setVisibleGallery(false);
-        setThumbnail(ele[0]);
-    };
-
-    const deleteThumbnail = () => {
-        setThumbnail(null);
-    };
-
-    const onChooseImage = () => {
-        setVisibleGallery(true);
-    };
-
-    const onRegionPopupScroll = (val:any) => {
-        console.log('onRegionPopupScroll -->', val);
-    };
 
     const handleClick = (
         e: React.MouseEvent<HTMLElement>,
@@ -233,34 +232,7 @@ const Index = ({ placeDetail, continents }:Props) => {
     
 
     const options = continents.filter((ele:any)=>ele.title.includes(searchParentTitle)).map((d:any) => <Option key={d.id} value={`${d.id}`}>{d.title}</Option>);
-    // const regionOptions = allRegions.filter((ele:any)=>ele.region_title.includes(searchRegionTitle)).map((d:any) => <Option key={d.id} value={`${d.id}`}>{d.region_title}</Option>);
 
-
-    console.log('categoryPages ==>', categoryPages);
-
-    const renderPreviewField = (photo:any) => {
-        if(photo){
-            if(photo){
-                return (
-                    <>
-                        <img src = {photo.url} />
-                        <div className = 'actionBar'>
-                            <span>
-                                <EditFilled onClick = {()=>onChooseImage()} style = {{color:'#fff'}} />
-                            </span>
-                            <span>
-                                <DeleteFilled style = {{color:'#fff'}} onClick = {deleteThumbnail}/>
-                            </span>
-                        </div>
-                    </>
-                );
-
-            }
-        }
-        return (
-            <Button type = "default" onClick={()=>onChooseImage()}>Add Image</Button>
-        );
-    };
 
     return (
         <>
@@ -283,24 +255,6 @@ const Index = ({ placeDetail, continents }:Props) => {
                     //     <Button style = {{backgroundColor:'#0ab068', color:'#fff'}} loading = {isRequesting} onClick = {()=>{form.submit();}}>Publish</Button>
                     // </>
                 }>
-
-                    <GalleryDialog open = {visibleGalleryDialog} onSelect = {onSelectPhoto} onClose = {()=>{setVisibleGallery(false);}}/>
-
-                    {
-                        Object.keys(errors).map((key:any, index:number)=>(
-                            <Alert
-                                message="Error"
-                                description={errors[key]}
-                                type="error"
-                                closable
-                                style = {{marginBottom:8}}
-                            />
-                        ))
-                    }
-
-                    <div className = 'imagePreview'>
-                        {renderPreviewField(thumbnail)}
-                    </div>
                     <Form form={form} style={{ marginTop: 20 }} onFinish={onFinish}>
 
                     {
@@ -379,63 +333,17 @@ const Index = ({ placeDetail, continents }:Props) => {
                         >
                             <Input />
                         </Form.Item>
-
-                        List Label:
-                        <Form.Item
-                            name="list_label"
-                            rules={[{ required: true, message: 'required!' }]}
-                        >
-                            <Input.TextArea />
-                        </Form.Item>
                         
                         Content:
-                        <Editor
-                            apiKey = "n16h33nt1xigk2hha9alkvvgxqyqa48akfey3cg9c6xdxxrc"
-                            onInit={(evt, editor) => {
-                                editorRef.current = editor;
-                            }}
-                            initialValue = {placeContent}
-                            init={{
-                                height: 500,
-                                menubar: false,
-                                plugins: [
-                                    'advlist autolink lists link image charmap print preview anchor',
-                                    'searchreplace visualblocks code fullscreen',
-                                    'insertdatetime media table paste code help wordcount'
-                                ],
-                                toolbar: 'undo redo | formatselect | ' + ' link image |' +
-                                'bold italic backcolor | alignleft aligncenter ' +
-                                'alignright alignjustify | bullist numlist outdent indent | ' +
-                                'removeformat | help',
-                                content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
-                        }}/>
+                        <HTMLEditor ref = {editorRef} html = {placeContent} />
                         <br/>
                         Second Content:
-                        <Editor
-                            apiKey = "n16h33nt1xigk2hha9alkvvgxqyqa48akfey3cg9c6xdxxrc"
-                            onInit={(evt, editor) => {
-                                secondEditorRef.current = editor;
-                            }}
-                            initialValue = {secondPlaceContent}
-                            init={{
-                                height: 500,
-                                menubar: false,
-                                plugins: [
-                                    'advlist autolink lists link image charmap print preview anchor',
-                                    'searchreplace visualblocks code fullscreen',
-                                    'insertdatetime media table paste code help wordcount'
-                                ],
-                                toolbar: 'undo redo | formatselect | ' + ' link image |' +
-                                'bold italic backcolor | alignleft aligncenter ' +
-                                'alignright alignjustify | bullist numlist outdent indent | ' +
-                                'removeformat | help',
-                                content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
-                        }}/>
+                        <HTMLEditor ref = {secondEditorRef} html = {secondPlaceContent} />
                     </Form>
                 </Card>
                 <br/>
 
-                <CityList id = "city-list-section" countryId = {placeId} cities = {placeDetail.children} />
+                {placeDetail.children &&  <CityList id = "city-list-section" countryId = {placeId} cities = {placeDetail.children} />}
 
                 <br/>
                 <GallerySection id = "gallery-section" gallery = {gallery} placeId = {placeId} placeDetail = {placeDetail} toSave = {isRequesting} />
@@ -451,7 +359,7 @@ const Index = ({ placeDetail, continents }:Props) => {
                 <br/>
                 <ExternalLinkSection id = "external-link-section" links = {placeDetail.external_links} cityId = {placeId} toSave = {isRequesting}/>
                 <br />
-                <SEOCard data = {placeDetail.seo} id = "seo-section" toSave = {isRequesting} placeId = {placeId}/>
+                <SEOCard placeDetail = {placeDetail} id = "seo-section" ref = {seoCardRef} />
                 <br />
                 <CommentSection id = "comments-section" placeId = {placeId} />
             </Col>

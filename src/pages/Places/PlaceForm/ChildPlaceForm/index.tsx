@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { Form, Row, Col,Anchor, Card, Button } from 'antd';
 
-import { createPlace, updatePlaceDetail, getAllCities } from 'api/api-place';
+import { createPlace, updatePlaceDetail, getAllCities, saveSEOData } from 'api/api-place';
 import CountryCategoryCard from 'pages/Places/PlaceForm/CountryForm/CountryCategoryCard';
 
 import SEOCard from 'components/SEOCard';
@@ -20,6 +20,8 @@ const Index = ({ placeDetail }:Props) => {
     const [cities, setCities] = useState<any[]>([]);
 
     const [isRequesting, setIsRequesting] = useState(false);
+
+    const seoCardRef = useRef<any>();
     
     useEffect(()=>{
         if(placeDetail.category_page){
@@ -49,6 +51,15 @@ const Index = ({ placeDetail }:Props) => {
         return null;
     }
 
+    const onFinish = async () => {
+
+        //update seo detail
+        if(seoCardRef.current){
+            const seoRes = await saveSEOData(placeDetail.id, seoCardRef.current.getSeoDetail());
+            console.log('seoRes ==>', seoRes.body);
+        }
+    };
+
     return (
         <>
             <Row gutter = {16}>
@@ -56,14 +67,17 @@ const Index = ({ placeDetail }:Props) => {
                 <Card id = "category-content" title = {placeDetail.category_page.category_page.title} bodyStyle = {{margin:0, padding:0, backgroundColor:'#f0f2f5'}} extra = {<><Button onClick = {()=>{
                     window.open(`${config.fontend}${placeDetail.category_page.category_page.guid}`, '_blank');
                 }}>Visit Page</Button> <Button style = {{backgroundColor:'#0ab068', color:'#fff'}} loading = {isRequesting} onClick = {()=>{
+                    
                     setIsRequesting(true);
                     setTimeout(() => {
                         setIsRequesting(false);
                     }, 2000);
+                    onFinish();
+
                 }}>Publish</Button></>}>
                     {placeDetail.category_page && <CountryCategoryCard contentKey="0" data = {placeDetail.category_page} parentPlace = {placeDetail.parent_place} categoryPageId = {placeDetail.category_page.id} countryId = {placeDetail.category_page.place_id} cities = {cities} toSave = {isRequesting} />}
                     <br/>
-                    <SEOCard data = {placeDetail.seo} id = "seo-section" toSave = {isRequesting} placeId = {placeDetail.id}/>
+                    <SEOCard placeDetail = {placeDetail} id = "seo-section" ref = {seoCardRef} />
                 </Card>
             </Col>
             <Col span = {4}>

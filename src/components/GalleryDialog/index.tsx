@@ -38,6 +38,8 @@ const GalleryDialog = ({open, onSelect, onClose, selectMode = 'single' }:Props) 
         }
 	};
 
+    console.log('gallery dialog is loading...');
+
     const onChangeTab = (activeKey:any) => {
         console.log(' --- onChangeTab --- ');
         setActiveTab(activeKey);

@@ -18,6 +18,7 @@ const ActionCell = ({ item, onChange }: any) => {
 	const onClickBtn = () => {
 		
         confirm({
+			centered:true,
             title: 'Are you sure you want to delete this user?',
             okText: 'Delete',
             okType: 'default',

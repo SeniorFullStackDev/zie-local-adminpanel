@@ -6,6 +6,7 @@ import { getAll, deleteComment, createComment } from 'api/api-comments';
 import { getAllfakeUsers } from 'api/api-user';
 import { InfoCircleOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import CreateReviewForm from 'pages/Comments/CreateReviewForm';
+import moment from 'moment';
 
 import { Link } from 'react-router-dom';
 
@@ -65,9 +66,18 @@ const Index = ({ id, placeId }: Prpos) => {
 			key: 'comment_author_IP',
 		},
 		{
+			title: 'Comment Date',
+			dataIndex: 'created_at',
+			key: 'created_at',
+			render: (text: string, record: any) => {
+				const dateObj = new Date(text);
+				return moment(dateObj).format('YYYY-MM-DD');
+			},
+		},
+		{
 			title: 'Action',
 			key: 'action',
-			width: '20%',
+			width: '10%',
 			render: (text: string, record: any) => (
 				<ActionCell item={record} onChange={() => loadTable()} />
 			),

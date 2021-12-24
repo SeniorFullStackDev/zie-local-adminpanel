@@ -85,6 +85,7 @@ export const getComments = (placeId, offset=0, limit=20, query ='') => {
 };
 
 export const saveSEOData = (placeId, data) => {
+    console.log('saveSEoDAta ==>', data);
     return postRequest(`${config.baseURL}places/seo/${placeId}`, data);
 };
 

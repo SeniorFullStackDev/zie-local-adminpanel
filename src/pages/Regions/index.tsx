@@ -226,7 +226,7 @@ const Index = ({ match }: any) => {
             }}>Add more</Button></div>]}>
 
               <div className ="table-header">
-                <Input.Search style={{ width: '40%' }} onPressEnter = {onFinishSearch}/>
+                <Input.Search style={{ width: '40%' }} onPressEnter = {onFinishSearch} onSearch = {loadTable}/>
               </div>
                 <Form form={form} component={false}>
                     <Table 

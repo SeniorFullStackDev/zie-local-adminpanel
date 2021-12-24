@@ -4,6 +4,7 @@ import { DeleteOutlined } from '@ant-design/icons';
 import { getAll, deleteComment } from 'api/api-comments';
 import { PlaceType } from 'modules/types';
 import CreateReviewForm from './CreateReviewForm';
+import moment from 'moment';
 
 const ActionCell = ({ item, onChange }: any) => {
 	const [isRequesting, setIsRequesting] = useState(false);
@@ -66,9 +67,18 @@ const AllComments = ({ match }: any) => {
 			key: 'comment_author_IP',
 		},
 		{
+			title: 'Comment Date',
+			dataIndex: 'created_at',
+			key: 'created_at',
+			render: (text: string, record: any) => {
+				const dateObj = new Date(text);
+				return moment(dateObj).format('YYYY-MM-DD');
+			},
+		},
+		{
 			title: 'Action',
 			key: 'action',
-			width: '20%',
+			width: '10%',
 			render: (text: string, record: any) => (
 				<ActionCell item={record} onChange={() => loadTable()} />
 			),
@@ -111,7 +121,7 @@ const AllComments = ({ match }: any) => {
     return (
 		<Card title = "Comments" extra={<Button type="primary" onClick = {addMoreComments}>Add Comment</Button>}>
 			<div className="table-header">
-				<Input.Search style={{ width: '40%' }} onPressEnter = {onFinishSearch}/>
+				<Input.Search style={{ width: '40%' }} onPressEnter = {onFinishSearch} onSearch = {loadTable} />
 			</div>
 			<Table columns={columns} dataSource={tableData} onChange = {onChange}  pagination={{ defaultPageSize: pageSize, showSizeChanger: false, total}} />
 			<CreateReviewForm isModalVisible = {isModalVisible} onClose = {(updated:boolean)=>{

@@ -1,11 +1,12 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Modal, Button, Row, Col, Tabs, Input, Image, Form, Upload, Card } from 'antd';
-import { CheckSquareFilled, MinusSquareFilled, InboxOutlined, FileImageOutlined} from '@ant-design/icons';
+import { Modal, Button, Row, Col, Tabs, Input, Image, Form, Upload, Card, Radio } from 'antd';
+import { CheckSquareFilled, MinusSquareFilled, InboxOutlined, FileImageOutlined, CheckCircleFilled} from '@ant-design/icons';
 import { getAll, deletePhoto, updatePhotoDetail, deletePhotos } from 'api/api-photo';
 import DeleteOutlined from '@ant-design/icons/DeleteOutlined';
 import history from 'modules/history';
 import { PlaceType } from 'modules/types';
 import { UploadForm } from 'components/GalleryDialog/UploadForm';
+import PhotoForm from './PhotoForm';
 
 const { TabPane } = Tabs;
 
@@ -19,6 +20,7 @@ const AllPhotos = ({ match }: any) => {
     const [isRequesting, setIsRequesting] = useState(false);
     const [activeTab, setActiveTab] = useState('1');
     const [form] = Form.useForm();
+    const [editingPhoto, setEditingPhoto] = useState<any>();
 
 	useEffect(()=>{
 		loadMoreData();
@@ -125,71 +127,66 @@ const AllPhotos = ({ match }: any) => {
         });
     };
 
+    const cancelSelectedPhoto = () => {
+        setPhoto([]);
+    };
+
     return (
 		<>
-		<Card title="Photos" extra = {( selectedPhoto.length > 0 && <Button type="primary" loading = {isRequesting} onClick = {deleteSelectedPhoto}>Delete</Button>)}>
+		<Card title="Photos" extra = {( selectedPhoto.length > 0 && <><Button type="default" loading = {isRequesting} onClick = {cancelSelectedPhoto}>Cancel</Button> <Button type="primary" danger loading = {isRequesting} onClick = {deleteSelectedPhoto}>Delete</Button></>)}>
 			<div style = {{minHeight:'70vh', position:'relative'}}>
-                        <Tabs onChange={onChangeTab} type="card" activeKey = {activeTab}>
-                            <TabPane tab="Media Libray" key="1">
-                                <Row>
-                                    <Col span = {(selectMode !== 'group')?20:24} >
-                                        <div>
-                                            <Input.Search style={{ width: '400px' }} onPressEnter = {onFinishSearch}/>
-                                        </div>
-                                        <div className = 'gallery-image-wrapper' onScroll ={handleScroll}>
-                                            <Row gutter = {[4, 4]}>
-                                                {photos.map((ele, i)=>(
-                                                    <Col md = {4} sm = {6} lg = {3}>
-                                                        <div className = {`photo-item ${(isSelected(ele))?'active':''}` }>
-                                                            <img src = {ele.sizes['thumbnail']} onClick = {()=>{
-                                                                addPhoto(ele);
-                                                                form.setFieldsValue(ele);
-                                                            }}/>
-                                                            <div className = 'checkMark'>
-                                                                <div className = 'checked'>
-                                                                    <CheckSquareFilled/>
-                                                                </div>
-                                                                <div className = "checked">
-                                                                    <MinusSquareFilled onClick = {()=>{removePhoto(ele);}}/>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </Col>
-                                                ))}
-                                            </Row>
-                                            
-                                        </div>
-                                    </Col>
-                                    {selectMode !== 'group' && <Col span = {4}>
-                                        <div style = {{padding:8}}>
-                                            <div>ATTACHMENT DETAIL</div>
-                                            <div style = {{marginTop: 8, marginBottom: 8, borderBottom:'solid #ccc 1px'}}>
-                                                {selectedPhoto[0] && <Image src = {selectedPhoto[0].url}/>}
-                                            </div>
-                                            <div>
-                                                <Form form = {form} labelCol = {{span:24}} wrapperCol = {{span:24}} onFinish = {onFinishPhotoForm}>
-                                                    <Form.Item label="Alt:" name = "alt">
-                                                        <Input />
-                                                    </Form.Item>
-                                                    <Form.Item label="Description:" name = "description">
-                                                        <Input.TextArea />
-                                                    </Form.Item>
-                                                    <Form.Item>
-                                                        <Button style = {{marginRight:0, marginLeft:'auto'}} type = "primary" htmlType = "submit">Save</Button>
-                                                    </Form.Item>
-                                                </Form>
-                                            </div>
-                                        </div>
-                                    </Col>}
-                                </Row>
-                            </TabPane>
-                            <TabPane tab="Upload files" key="2">
-                                <UploadForm onFinishedUpload = {onFinishedUpload}/>
-                            </TabPane>
-                        </Tabs>
-                    </div>
+                <Tabs onChange={onChangeTab} type="card" activeKey = {activeTab}>
+                    <TabPane tab="Media Libray" key="1">
+                        <Row>
+                            <Col span = {(selectMode !== 'group')?20:24} >
+                                <div>
+                                    <Input.Search style={{ width: '400px' }} onPressEnter = {onFinishSearch}/>
+                                </div>
+                                <div style = {{height: 'calc(70vh - 100px)', marginTop:'8px', overflowY:'auto', overflowX:'hidden'}} onScroll ={handleScroll}>
+                                    <Row gutter = {[8, 8]}>
+                                        {photos.map((ele, i)=>(
+                                            <Col md = {4} sm = {6} lg = {3} style = {{overflow:'hidden'}}>
+                                                <div style = {{position:'relative'}}>
+                                                    <img style = {{width:'100%'}} src = {ele.sizes['thumbnail']} onClick = {()=>{
+                                                        setEditingPhoto(ele);
+                                                    }}/>
+                                                    <div className = "photos-checkbox-group">
+                                                        <span className = 'checkbox' onClick = {()=>{
+                                                            addPhoto(ele);
+                                                            form.setFieldsValue(ele);
+                                                        }}>
+                                                            {isSelected(ele) && <CheckCircleFilled />}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </Col>
+                                        ))}
+                                    </Row>
+                                </div>
+                            </Col>
+                        </Row>
+                    </TabPane>
+                    <TabPane tab="Upload files" key="2">
+                        <UploadForm onFinishedUpload = {onFinishedUpload}/>
+                    </TabPane>
+                </Tabs>
+            </div>
 		</Card>
-
+        <PhotoForm photo = {editingPhoto} onClose = {(values?:any)=>{
+            if(values){
+                const index = photos.findIndex((ele)=>ele.id == editingPhoto.id);
+                photos[index] = { ...editingPhoto, ...values};
+                setPhotos([...photos]);
+            }
+            setEditingPhoto(null);
+        }}
+        onDelete = {()=>{
+            const index = photos.findIndex((ele)=>ele.id == editingPhoto.id);
+            photos.splice(index, 1);
+            setPhotos([...photos]);
+            setEditingPhoto(null);
+        }}
+        />
 		</>
     );
 };

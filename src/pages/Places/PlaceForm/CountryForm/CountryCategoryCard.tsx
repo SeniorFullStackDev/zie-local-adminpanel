@@ -2,7 +2,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import { Card, Form, Input, InputNumber, Button, Image, Upload, Row, Col, Select } from 'antd';
 import { createCityContent, deleteCategoryPage, updateCityContent, deleteCityContent, updatePlaceDetail, createCategoryPage} from 'api/api-place';
 import { DeleteFilled, EditFilled, CloseOutlined } from '@ant-design/icons';
-import { Editor } from '@tinymce/tinymce-react';
+import HTMLEditor from 'components/HTMLEditor';
 import GalleryDialog from 'components/GalleryDialog';
 
  
@@ -217,26 +217,7 @@ const index = ({contentKey, parentPlace, categoryPageId, countryId, data, cities
                             <Input disabled />
                         </Form.Item>
                         Content:
-                        <Editor
-                            apiKey = "n16h33nt1xigk2hha9alkvvgxqyqa48akfey3cg9c6xdxxrc"
-                            onInit={(evt, editor) => {
-                                editorRef.current = editor;
-                            }}
-                            initialValue = {formData.content}
-                            init={{
-                                height: 500,
-                                menubar: false,
-                                plugins: [
-                                    'advlist autolink lists link image charmap print preview anchor',
-                                    'searchreplace visualblocks code fullscreen',
-                                    'insertdatetime media table paste code help wordcount'
-                                ],
-                                toolbar: 'undo redo | formatselect | ' + ' link image |' +
-                                'bold italic backcolor | alignleft aligncenter ' +
-                                'alignright alignjustify | bullist numlist outdent indent | ' +
-                                'removeformat | help',
-                                content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
-                        }}/>
+                        <HTMLEditor ref = {editorRef} html = {formData.content} />
 
                         <br/>
                         Preview:

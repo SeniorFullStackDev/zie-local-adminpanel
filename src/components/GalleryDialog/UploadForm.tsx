@@ -58,6 +58,7 @@ export const UploadForm = ({ onFinishedUpload }:Props) => {
 
             for(let i = 0; i < fileList.length; i++){
                 values.fileName = fileList[i].response.fileName;
+                values.extension = fileList[i].response.extension;
                 try {
                     const res = await createPhoto(values);
                     newPhotos.push(res.body.photo);

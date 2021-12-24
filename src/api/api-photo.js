@@ -5,8 +5,8 @@ export const getAll = (offset=0, limit=20, query='') => {
 	return getRequest(`${config.baseURL}photos?offset=${offset}&limit=${limit}&query=${query}`);
 };
 
-export const getPhotoDetail = (placeId) => {
-    return getRequest(`${config.baseURL}photos/detail/${placeId}`);
+export const getPhotoDetail = (photoId) => {
+    return getRequest(`${config.baseURL}photos/detail/${photoId}`);
 };
 
 export const searchPhotos = (query) => {
@@ -14,12 +14,12 @@ export const searchPhotos = (query) => {
 };
 
 
-export const updatePhotoDetail = (placeId, data) => {
-    return putRequest(`${config.baseURL}photos/${placeId}`, data);
+export const updatePhotoDetail = (photoId, data) => {
+    return putRequest(`${config.baseURL}photos/${photoId}`, data);
 };
 
-export const deletePhoto = (placeId) => {
-    return deleteRequest(`${config.baseURL}photos/${placeId}`);
+export const deletePhoto = (photoId) => {
+    return deleteRequest(`${config.baseURL}photos/${photoId}`);
 };
 
 export const deletePhotos = (photoIds) => {

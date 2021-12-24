@@ -1,18 +1,42 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Table, Tag, Space, Button, Modal, Form, Input, Grid } from 'antd';
+import { Table, Tag, Space, Button, Modal, Form, Input, Grid, Badge } from 'antd';
 import { getAll, deletePlace } from 'api/api-place';
 import DeleteOutlined from '@ant-design/icons/DeleteOutlined';
 import history from 'modules/history';
 import { PlaceType } from 'modules/types';
- 
+
+const confirm = Modal.confirm;
 
 const ActionCell = ({ item, onChange }: any) => {
 	const [isRequesting, setIsRequesting] = useState(false);
 	const onClickBtn = () => {
-		setIsRequesting(true);
-		deletePlace(item.id);
-		onChange();
+		confirm({
+			centered:true,
+            title: 'Are you sure you want to delete this place?',
+            okText: 'Delete',
+            okType: 'default',
+            cancelText: 'No, do not delete',
+            okButtonProps:{
+                style:{
+                    backgroundColor:'#fff'
+                }
+            },
+            cancelButtonProps: {
+                style:{
+                    backgroundColor:'#0ab068', color:'#fff'
+                }
+            },
+            onOk() {
+                console.log('OK');
+                setIsRequesting(true);
+				deletePlace(item.id);
+				onChange();
+            },
+            onCancel() {
+              console.log('Cancel');
+            },
+          });
 	};
 	return (
 		<Space size="middle">
@@ -39,6 +63,17 @@ const AllPlaces = ({ match }: any) => {
 			title: 'Search Label',
 			dataIndex: 'search_label',
 			key: 'search_label',
+		},
+		{
+			title: 'Featured Image',
+			dataIndex: 'thumbnail',
+			key: 'thumbnail',
+			render: (text: string, item: any) => {
+				if(item.thumbnail){
+					if(item.thumbnail.verified) return <Badge status = "success"/>;
+				}
+				return <Badge status = "default"/>;
+			}
 		},
 		{
 			title: 'Action',
@@ -90,7 +125,7 @@ const AllPlaces = ({ match }: any) => {
         <div className="table-header">
 			{/* <Form form={form} style={{ marginTop: 20 }} onFinish={onFinishSearch}> */}
 			{/* </Form> */}
-			<Input.Search style={{ width: '40%' }} onPressEnter = {onFinishSearch}/>
+			<Input.Search style={{ width: '40%' }} onPressEnter = {onFinishSearch} onSearch = {loadTable}/>
 			<div>
 				<Button onClick={onCreateNewCountry}>Add New Country</Button>
 				<Button onClick={onCreateNewCity} style = {{marginLeft:16}} type="primary">Add New City</Button>

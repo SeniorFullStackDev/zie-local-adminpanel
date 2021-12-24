@@ -9,7 +9,7 @@ import usePlace from 'modules/place/place.hook';
 
 interface Props {
     isModalVisible:boolean;
-    onClose:(updated:boolean)=>void;
+	onClose:(updated:boolean)=>void;
 }
 
 const Index = ({isModalVisible, onClose }:Props) => {
@@ -167,6 +167,7 @@ const Index = ({isModalVisible, onClose }:Props) => {
 				visible={isModalVisible}
 				onOk={handleOk}
 				onCancel = {()=>onClose(false)}
+				width={1000}
 				footer={[
 					<Button key="back" onClick={()=>onClose(true)}>
 						Close
@@ -197,7 +198,7 @@ const Index = ({isModalVisible, onClose }:Props) => {
 							{
 								allFakeUsers.map((ele:any, index:number)=>(
 									<Select.Option key={ele.id} value={ele.id}>
-										{ele.email}
+										{`${ele.email} (${ele.name})`}
 									</Select.Option>
 								))
 							}
